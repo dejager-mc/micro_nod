@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd">
+
+    <!-- Scan the com.itcuties.registration package for Spring -->
+    <context:component-scan base-package="nl.demo.springjms"/>
+
+    <jee:jndi-lookup id="connectionFactory" jndi-name="jms/connectionFactory"/>
+    <bean id="destinationResolver" class="org.springframework.jms.support.destination.JndiDestinationResolver" />
+    <bean id="convertJmsMessageBean" class="nl.ocwduo.nod.jms.ConvertJmsMessage" />
+
+    <!-- Als het bericht een XML bericht is is een marsheller nodig, en moet er een converte worden toegevoegd aan de jms listener -->
+    <!--<bean id="converter" class="org.springframework.jms.support.converter.MarshallingMessageConverter">-->
+    <!--<constructor-arg>-->
+    <!--<bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">-->
+    <!--<property name=""-->
+    <!--</bean>-->
+    <!--</constructor-arg>-->
+    <!--</bean>-->
+
+    <!--<jms:listener-container connection-factory="connectionFactory" destination-resolver="destinationResolver" message-converter="converter" >-->
+    <!--<jms:listener destination="jms/input" response-destination="jms/output" ref="registration" method="transform" />-->
+    <!--</jms:listener-container>-->
+    <jms:listener-container connection-factory="connectionFactory" destination-resolver="destinationResolver">
+        <jms:listener destination="jms/input" response-destination="jms/output" ref="convertJmsMessageBean"
+                      method="convertMessage"/>
+    </jms:listener-container>
+
+</beans>
